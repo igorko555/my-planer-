@@ -1,0 +1,707 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --bg-dark: #050508;
+  --bg-glow: #1a153a;
+  --text-primary: #ffffff;
+  --text-secondary: #a1a1aa;
+  
+  --glass-bg: rgba(20, 20, 30, 0.4);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  
+  --primary: #8b5cf6;
+  --primary-glow: rgba(139, 92, 246, 0.5);
+  --secondary: #d946ef;
+  
+  --dot-red: #f43f5e;
+  --dot-red-glow: rgba(244, 63, 94, 0.5);
+  --dot-green: #10b981;
+  --dot-green-glow: rgba(16, 185, 129, 0.5);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Outfit', sans-serif;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background-color: var(--bg-dark);
+  background-image: 
+    radial-gradient(circle at 15% 50%, rgba(139, 92, 246, 0.15), transparent 25%),
+    radial-gradient(circle at 85% 30%, rgba(217, 70, 239, 0.15), transparent 25%);
+  color: var(--text-primary);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* Animated background mesh logic could be added here, but gradients suffice for a clean look */
+
+.app-container {
+  width: 100%;
+  max-width: 650px;
+  padding: calc(3rem + env(safe-area-inset-top)) 1.5rem 3rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  z-index: 1;
+  position: relative;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 1rem;
+  animation: fadeInDown 0.8s ease-out;
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.header h1 {
+  font-size: 3rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #c4b5fd, #f0abfc);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -1px;
+  margin-bottom: 0.5rem;
+  filter: drop-shadow(0px 4px 12px rgba(217, 70, 239, 0.3));
+}
+
+.header p {
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  font-weight: 300;
+}
+
+.input-glass {
+  width: 100%;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  box-shadow: inset 0 0 20px rgba(0,0,0,0.5), 0 4px 20px rgba(0,0,0,0.2);
+  border-radius: 20px;
+  padding: 1.2rem 1.5rem;
+  color: var(--text-primary);
+  font-size: 1.1rem;
+  outline: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.input-glass::placeholder {
+  color: rgba(255, 255, 255, 0.25);
+  font-weight: 300;
+}
+
+.input-glass:focus {
+  border-color: rgba(139, 92, 246, 0.5);
+  box-shadow: inset 0 0 20px rgba(0,0,0,0.5), 0 0 25px rgba(139, 92, 246, 0.2);
+  transform: translateY(-2px);
+}
+
+.task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.task-item {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  background: linear-gradient(145deg, rgba(30, 30, 45, 0.6), rgba(15, 15, 20, 0.8));
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  padding: 1.2rem 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  backdrop-filter: blur(12px);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  animation: slideIn 0.4s ease-out backwards;
+}
+
+/* Staggered animation for list items could be done in JS, but this adds a generic pop */
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(20px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.task-item:hover {
+  transform: translateY(-4px);
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.4), inset 0 0 0 1px rgba(255,255,255,0.05);
+}
+
+.task-item:active {
+  transform: scale(0.97);
+}
+
+.task-item.completed {
+  opacity: 0.6;
+  background: rgba(15, 15, 20, 0.4);
+}
+
+.task-item.completed:hover {
+  transform: translateY(-2px);
+}
+
+.task-item.dragging {
+  opacity: 0.5;
+  transform: scale(0.95);
+  cursor: grabbing;
+}
+
+.task-item.drag-over {
+  border-top: 2px solid var(--primary);
+  box-shadow: 0 -4px 10px rgba(139, 92, 246, 0.4);
+}
+
+.task-item.completed .task-text {
+  text-decoration: line-through;
+  color: var(--text-secondary);
+}
+
+.dot {
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  border-radius: 50%;
+  transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  position: relative;
+}
+
+.dot::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  background: white;
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  transition: transform 0.3s ease;
+}
+
+.task-item.completed .dot::after {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.dot-red {
+  background: var(--dot-red);
+  box-shadow: 0 0 15px var(--dot-red-glow), inset 0 -2px 5px rgba(0,0,0,0.3);
+}
+
+.dot-green {
+  background: var(--dot-green);
+  box-shadow: 0 0 15px var(--dot-green-glow), inset 0 -2px 5px rgba(0,0,0,0.3);
+}
+
+.task-content {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  overflow: hidden;
+}
+
+.task-text {
+  font-size: 1.15rem;
+  font-weight: 400;
+  transition: color 0.3s ease;
+  word-break: break-word;
+}
+
+/* Priority Badges */
+.priority-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.2rem 0.6rem;
+  border-radius: 8px;
+  width: fit-content;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.priority-high {
+  background: rgba(244, 63, 94, 0.15);
+  color: #fb7185;
+  border: 1px solid rgba(244, 63, 94, 0.3);
+}
+.priority-medium {
+  background: rgba(250, 204, 21, 0.15);
+  color: #fde047;
+  border: 1px solid rgba(250, 204, 21, 0.3);
+}
+.priority-low {
+  background: rgba(167, 139, 250, 0.15);
+  color: #c4b5fd;
+  border: 1px solid rgba(167, 139, 250, 0.3);
+}
+
+/* Progress Bar */
+.progress-container {
+  background: linear-gradient(145deg, rgba(30, 30, 45, 0.6), rgba(15, 15, 20, 0.8));
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  padding: 1.2rem;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  animation: slideIn 0.5s ease-out;
+}
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.progress-bar-bg {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #c084fc, #6366f1, #22d3ee);
+  background-size: 200% 100%;
+  border-radius: 4px;
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: bg-pan 3s linear infinite;
+}
+
+@keyframes bg-pan {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+/* New Task Form Card */
+.task-form-card {
+  background: linear-gradient(145deg, rgba(30, 30, 45, 0.4), rgba(15, 15, 20, 0.6));
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 24px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.05);
+  animation: slideIn 0.5s ease-out;
+}
+
+.task-input-main {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 1.15rem;
+  padding: 1.2rem 1.5rem;
+  border-radius: 16px;
+  color: white;
+  width: 100%;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.task-input-main:focus {
+  border-color: rgba(139, 92, 246, 0.5);
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.15);
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.task-input-main::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.task-form-options {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.8rem;
+}
+
+@media (min-width: 600px) {
+  .task-form-options {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .reminder-group {
+    grid-column: 1 / -1;
+  }
+}
+
+.option-group {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.option-group:focus-within {
+  border-color: rgba(139, 92, 246, 0.4);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.option-label {
+  padding: 0.9rem 1rem;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  height: 100%;
+}
+
+.option-select, .option-input {
+  flex-grow: 1;
+  background: transparent;
+  border: none;
+  color: white;
+  padding: 0.9rem 1rem;
+  font-size: 0.95rem;
+  outline: none;
+  width: 100%;
+}
+
+.option-input::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  opacity: 0.7;
+  cursor: pointer;
+}
+
+.option-select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 1.2em;
+  padding-right: 2.5rem;
+}
+
+.option-select option {
+  background: var(--bg-dark);
+  color: white;
+}
+
+.submit-btn-large {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: white;
+  border: none;
+  border-radius: 16px;
+  padding: 1.2rem;
+  font-size: 1.15rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3);
+  margin-top: 0.5rem;
+  width: 100%;
+}
+
+.submit-btn-large:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(139, 92, 246, 0.5);
+}
+
+.submit-btn-large:active {
+  transform: translateY(1px);
+}
+
+.delete-btn {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 0.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 2;
+}
+
+.delete-btn:hover {
+  background: rgba(244, 63, 94, 0.15);
+  color: var(--dot-red);
+  border-color: rgba(244, 63, 94, 0.3);
+  transform: scale(1.1);
+}
+
+.chef-btn:hover {
+  background: rgba(217, 70, 239, 0.15);
+  color: var(--secondary);
+  border-color: rgba(217, 70, 239, 0.3);
+}
+
+/* AI Recipe UI - Premium Feel */
+.recipe-assistant {
+  margin-top: 0.5rem;
+  background: linear-gradient(160deg, rgba(30, 27, 75, 0.6), rgba(15, 10, 30, 0.8));
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(139, 92, 246, 0.1);
+  border-radius: 20px;
+  padding: 1.5rem;
+  animation: slideDownFade 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  transform-origin: top center;
+  position: relative;
+  overflow: hidden;
+}
+
+.recipe-assistant::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 50%; height: 2px;
+  background: linear-gradient(90deg, transparent, #d946ef, transparent);
+  animation: scanline 3s linear infinite;
+}
+
+@keyframes scanline {
+  0% { left: -50%; }
+  100% { left: 150%; }
+}
+
+@keyframes slideDownFade {
+  from { opacity: 0; transform: translateY(-15px) scale(0.97) rotateX(-10deg); }
+  to { opacity: 1; transform: translateY(0) scale(1) rotateX(0); }
+}
+
+.recipe-header {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  color: #f0abfc;
+  font-weight: 600;
+  font-size: 1.3rem;
+  letter-spacing: 0.5px;
+  text-shadow: 0 0 15px rgba(240, 171, 252, 0.4);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: white;
+  border: none;
+  border-radius: 16px;
+  padding: 1rem 1.8rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4), inset 0 2px 0 rgba(255,255,255,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary::after {
+  content: '';
+  position: absolute;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.btn-primary:hover::after {
+  opacity: 1;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(217, 70, 239, 0.5), inset 0 2px 0 rgba(255,255,255,0.3);
+}
+
+.btn-primary:active {
+  transform: scale(0.96) translateY(2px);
+  box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+}
+
+.btn-primary:disabled {
+  background: linear-gradient(135deg, #4c4c5a, #3f3f4e);
+  box-shadow: none;
+  color: rgba(255,255,255,0.4);
+  cursor: not-allowed;
+  transform: none;
+}
+
+.ai-recipe-result {
+  background: rgba(0, 0, 0, 0.4);
+  padding: 1.5rem;
+  border-radius: 16px;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--text-primary);
+  white-space: pre-wrap;
+  border: 1px solid rgba(255,255,255,0.05);
+  border-left: 4px solid var(--secondary);
+  box-shadow: inset 0 4px 15px rgba(0,0,0,0.3);
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-dark); 
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1); 
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2); 
+}
+
+/* Enhancements */
+.credit-badge {
+  position: absolute;
+  top: calc(1rem + env(safe-area-inset-top));
+  right: 1.5rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  opacity: 0.7;
+  font-weight: 300;
+  letter-spacing: 1.5px;
+  text-transform: lowercase;
+  pointer-events: none;
+}
+
+.celebration-banner {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(16, 185, 129, 0.2));
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  color: #a7f3d0;
+  padding: 1.2rem;
+  border-radius: 16px;
+  text-align: center;
+  font-weight: 500;
+  font-size: 1.15rem;
+  animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards, float 3s ease-in-out infinite;
+  box-shadow: 0 4px 20px rgba(34, 197, 94, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.8) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-5px); }
+  100% { transform: translateY(0px); }
+}
+
+/* Subtasks */
+.subtasks-container {
+  margin-left: 2.5rem;
+  margin-top: -0.2rem;
+  margin-bottom: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  animation: slideDownFade 0.3s ease-out forwards;
+}
+
+.subtask-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: rgba(20, 20, 30, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  padding: 0.8rem 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(8px);
+}
+
+.subtask-item:hover {
+  background: rgba(30, 30, 45, 0.6);
+  border-color: rgba(255, 255, 255, 0.1);
+  transform: translateX(4px);
+}
+
+.subtask-item.completed {
+  opacity: 0.6;
+}
+
+.subtask-item.completed .task-text {
+  text-decoration: line-through;
+  color: var(--text-secondary);
+}
+
+.dot-small {
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+}
+
+.dot-small::after {
+  width: 8px;
+  height: 8px;
+}
+
+.sub-delete-btn {
+  padding: 0.4rem;
+  margin-left: auto;
+  border-radius: 8px;
+}
+
+.subtask-form {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 0.2rem;
+}
+
+.subtask-input {
+  padding: 0.8rem 1rem;
+  font-size: 1rem;
+  border-radius: 12px;
+  background: rgba(10, 10, 15, 0.4);
+  flex-grow: 1;
+}
