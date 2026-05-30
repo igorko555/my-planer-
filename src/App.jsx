@@ -7,7 +7,7 @@ function App() {
     const saved = localStorage.getItem('planer-tasks');
     return saved ? JSON.parse(saved) : [];
   });
-  
+
   const [newTaskText, setNewTaskText] = useState('');
   const [newPriority, setNewPriority] = useState('medium');
   const [newDeadline, setNewDeadline] = useState('');
@@ -18,13 +18,13 @@ function App() {
   const [ingredients, setIngredients] = useState('');
   const [aiResponse, setAiResponse] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
-  
+
   const [expandedTasks, setExpandedTasks] = useState(new Set());
   const [newSubtaskTexts, setNewSubtaskTexts] = useState({});
-  
+
   const [draggedItemIndex, setDraggedItemIndex] = useState(null);
   const [dragOverItemIndex, setDragOverItemIndex] = useState(null);
-  
+
   const [notificationPermission, setNotificationPermission] = useState(
     typeof Notification !== 'undefined' ? Notification.permission : 'default'
   );
@@ -53,11 +53,11 @@ function App() {
         let updated = false;
         const newTasks = prevTasks.map(task => {
           if (task.completed || !task.deadline || task.notified) return task;
-          
+
           const deadlineTime = new Date(task.deadline).getTime();
           const now = Date.now();
           const offset = task.reminderOffset !== undefined ? task.reminderOffset : 12 * 60 * 60 * 1000;
-          
+
           // Trigger if we've passed the (deadline - reminder offset) mark
           if (now >= deadlineTime - offset) {
             updated = true;
@@ -65,19 +65,19 @@ function App() {
               if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.ready.then(registration => {
                   registration.showNotification('⏰ Нагадування Планера', {
-                    body: `Час спливає! Завдання "${task.text}" заплановано на ${new Date(task.deadline).toLocaleString('uk-UA', { month: '2-digit', day: '2-digit', hour: '2-digit', minute:'2-digit' })}.`,
+                    body: `Час спливає! Завдання "${task.text}" заплановано на ${new Date(task.deadline).toLocaleString('uk-UA', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}.`,
                     icon: '/vite.svg',
                     vibrate: [200, 100, 200]
                   });
                 }).catch(() => {
                   new Notification('⏰ Нагадування Планера', {
-                    body: `Час спливає! "${task.text}" заплановано на ${new Date(task.deadline).toLocaleString('uk-UA', { hour: '2-digit', minute:'2-digit' })}.`,
+                    body: `Час спливає! "${task.text}" заплановано на ${new Date(task.deadline).toLocaleString('uk-UA', { hour: '2-digit', minute: '2-digit' })}.`,
                     icon: '/vite.svg'
                   });
                 });
               } else {
                 new Notification('⏰ Нагадування Планера', {
-                  body: `Час спливає! "${task.text}" заплановано на ${new Date(task.deadline).toLocaleString('uk-UA', { hour: '2-digit', minute:'2-digit' })}.`,
+                  body: `Час спливає! "${task.text}" заплановано на ${new Date(task.deadline).toLocaleString('uk-UA', { hour: '2-digit', minute: '2-digit' })}.`,
                   icon: '/vite.svg'
                 });
               }
@@ -88,24 +88,24 @@ function App() {
           }
           return task;
         });
-        
+
         return updated ? newTasks : prevTasks;
       });
     };
 
     checkNotifications();
     const intervalId = setInterval(checkNotifications, 60000);
-    
+
     return () => clearInterval(intervalId);
   }, [notificationPermission]);
 
   const addTask = (e) => {
     e.preventDefault();
     if (!newTaskText.trim()) return;
-    
+
     const text = newTaskText.trim();
     const lowerText = text.toLowerCase();
-    
+
     // Check if task is food related
     const isFoodRelated = lowerText.includes('поїсти') || lowerText.includes('приготувати') || lowerText.includes('їсти') || lowerText.includes('готувати');
 
@@ -240,7 +240,7 @@ function App() {
     if (!ingredients.trim()) return;
     setIsGenerating(true);
     setAiResponse('');
-    
+
     try {
       const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
       if (!apiKey) {
@@ -260,13 +260,13 @@ function App() {
       });
 
       const data = await response.json();
-      
+
       if (data.error) {
         throw new Error(data.error.message || 'Помилка API');
       }
 
       const textResponse = data.candidates?.[0]?.content?.parts?.[0]?.text;
-      
+
       if (textResponse) {
         setAiResponse(textResponse);
       } else {
@@ -296,8 +296,8 @@ function App() {
         <div className="progress-info" style={{ alignItems: 'center' }}>
           <span>Прогрес за день</span>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-            <button 
-              className="delete-btn" 
+            <button
+              className="delete-btn"
               style={{ padding: '0.4rem', borderRadius: '8px' }}
               onClick={requestNotificationPermission}
               title={notificationPermission === 'granted' ? 'Сповіщення увімкнено' : 'Увімкнути сповіщення'}
@@ -320,19 +320,19 @@ function App() {
       )}
 
       <form onSubmit={addTask} className="task-form-card">
-        <input 
-          type="text" 
-          className="task-input-main" 
-          placeholder="Що плануємо зробити?..." 
+        <input
+          type="text"
+          className="task-input-main"
+          placeholder="Що плануємо зробити?..."
           value={newTaskText}
           onChange={(e) => setNewTaskText(e.target.value)}
         />
-        
+
         <div className="task-form-options">
           <div className="option-group">
-            <div className="option-label"><Flag size={16}/> Пріоритет</div>
-            <select 
-              className="option-select" 
+            <div className="option-label"><Flag size={16} /> Пріоритет</div>
+            <select
+              className="option-select"
               value={newPriority}
               onChange={(e) => setNewPriority(e.target.value)}
             >
@@ -343,9 +343,9 @@ function App() {
           </div>
 
           <div className="option-group">
-            <div className="option-label"><Calendar size={16}/> Дедлайн</div>
-            <input 
-              type="datetime-local" 
+            <div className="option-label"><Calendar size={16} /> Дедлайн</div>
+            <input
+              type="datetime-local"
               className="option-input"
               value={newDeadline}
               onChange={(e) => setNewDeadline(e.target.value)}
@@ -353,7 +353,7 @@ function App() {
           </div>
 
           <div className="option-group reminder-group">
-            <div className="option-label"><Bell size={16}/> Нагадати</div>
+            <div className="option-label"><Bell size={16} /> Нагадати</div>
             <select
               className="option-select"
               value={newReminderOffset}
@@ -379,7 +379,7 @@ function App() {
         ) : (
           tasks.map((task, index) => (
             <div key={task.id} style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              <div 
+              <div
                 className={`task-item ${task.completed ? 'completed' : ''} ${draggedItemIndex === index ? 'dragging' : ''} ${dragOverItemIndex === index ? 'drag-over' : ''}`}
                 draggable
                 onDragStart={(e) => handleDragStart(e, index)}
@@ -389,11 +389,11 @@ function App() {
                 onClick={() => toggleTask(task.id)}
               >
                 <div className={`dot ${task.completed ? 'dot-green' : 'dot-red'}`}></div>
-                
+
                 <div className="task-content">
                   {editingTaskId === task.id ? (
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       className="input-glass"
                       style={{ padding: '0.5rem 1rem', fontSize: '1rem', marginBottom: '0.3rem' }}
                       value={editTaskText}
@@ -407,7 +407,7 @@ function App() {
                   ) : (
                     <span className="task-text">{task.text}</span>
                   )}
-                  
+
                   <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.2rem' }}>
                     {task.priority && (
                       <span className={`priority-badge priority-${task.priority}`}>
@@ -416,7 +416,7 @@ function App() {
                     )}
                     {task.deadline && (
                       <span className="priority-badge" style={{ background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                        <Calendar size={12} /> {new Date(task.deadline).toLocaleString('uk-UA', { month: '2-digit', day: '2-digit', hour: '2-digit', minute:'2-digit' })}
+                        <Calendar size={12} /> {new Date(task.deadline).toLocaleString('uk-UA', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}
                       </span>
                     )}
                     {task.subtasks && task.subtasks.length > 0 && (
@@ -426,69 +426,71 @@ function App() {
                     )}
                   </div>
                 </div>
-                
-                {editingTaskId === task.id ? (
-                  <button 
-                    className="delete-btn" 
-                    onClick={(e) => saveEdit(task.id, e)}
-                    title="Зберегти"
-                    style={{ color: '#10b981', borderColor: 'rgba(16, 185, 129, 0.3)' }}
-                  >
-                    <Check size={22} />
-                  </button>
-                ) : (
-                  <>
-                    <button 
-                      className="delete-btn" 
-                      onClick={(e) => startEditing(task, e)}
-                      title="Редагувати"
-                    >
-                      <Edit2 size={22} />
-                    </button>
-                    {task.isFoodRelated && (
-                      <button 
-                        className="delete-btn chef-btn" 
-                        onClick={(e) => openRecipeAssistant(task.id, e)}
-                        title="Підібрати рецепт"
-                      >
-                        <ChefHat size={22} />
-                      </button>
-                    )}
-                    
-                    <button 
-                      className="delete-btn" 
-                      onClick={(e) => toggleExpand(task.id, e)}
-                      title="Підпункти"
-                    >
-                      {expandedTasks.has(task.id) ? <ChevronDown size={22} /> : <ChevronRight size={22} />}
-                    </button>
 
-                    <button 
-                      className="delete-btn" 
-                      onClick={(e) => deleteTask(task.id, e)}
-                      title="Видалити"
+                <div className="task-actions">
+                  {editingTaskId === task.id ? (
+                    <button
+                      className="delete-btn"
+                      onClick={(e) => saveEdit(task.id, e)}
+                      title="Зберегти"
+                      style={{ color: '#10b981', borderColor: 'rgba(16, 185, 129, 0.3)' }}
                     >
-                      <Trash2 size={22} />
+                      <Check size={22} />
                     </button>
-                  </>
-                )}
+                  ) : (
+                    <>
+                      <button
+                        className="delete-btn"
+                        onClick={(e) => startEditing(task, e)}
+                        title="Редагувати"
+                      >
+                        <Edit2 size={22} />
+                      </button>
+                      {task.isFoodRelated && (
+                        <button
+                          className="delete-btn chef-btn"
+                          onClick={(e) => openRecipeAssistant(task.id, e)}
+                          title="Підібрати рецепт"
+                        >
+                          <ChefHat size={22} />
+                        </button>
+                      )}
+
+                      <button
+                        className="delete-btn"
+                        onClick={(e) => toggleExpand(task.id, e)}
+                        title="Підпункти"
+                      >
+                        {expandedTasks.has(task.id) ? <ChevronDown size={22} /> : <ChevronRight size={22} />}
+                      </button>
+
+                      <button
+                        className="delete-btn"
+                        onClick={(e) => deleteTask(task.id, e)}
+                        title="Видалити"
+                      >
+                        <Trash2 size={22} />
+                      </button>
+                    </>
+                  )}
+                </div>
               </div>
 
               {/* Subtasks Block */}
               {expandedTasks.has(task.id) && (
                 <div className="subtasks-container">
                   {(task.subtasks || []).map(st => (
-                     <div key={st.id} className={`subtask-item ${st.completed ? 'completed' : ''}`} onClick={(e) => toggleSubtask(task.id, st.id, e)}>
-                        <div className={`dot dot-small ${st.completed ? 'dot-green' : 'dot-red'}`}></div>
-                        <span className="task-text">{st.text}</span>
-                        <button className="delete-btn sub-delete-btn" onClick={(e) => deleteSubtask(task.id, st.id, e)} title="Видалити підпункт">
-                          <X size={18} />
-                        </button>
-                     </div>
+                    <div key={st.id} className={`subtask-item ${st.completed ? 'completed' : ''}`} onClick={(e) => toggleSubtask(task.id, st.id, e)}>
+                      <div className={`dot dot-small ${st.completed ? 'dot-green' : 'dot-red'}`}></div>
+                      <span className="task-text">{st.text}</span>
+                      <button className="delete-btn sub-delete-btn" onClick={(e) => deleteSubtask(task.id, st.id, e)} title="Видалити підпункт">
+                        <X size={18} />
+                      </button>
+                    </div>
                   ))}
                   <form className="subtask-form" onSubmit={(e) => addSubtask(task.id, e)}>
                     <CornerDownRight size={20} style={{ color: 'var(--text-secondary)' }} />
-                    <input 
+                    <input
                       type="text"
                       className="input-glass subtask-input"
                       placeholder="Новий підпункт..."
@@ -502,41 +504,41 @@ function App() {
 
               {/* Recipe Assistant Block */}
               {activeRecipeTaskId === task.id && (
-                 <div className="recipe-assistant">
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <div className="recipe-header">
-                        <Sparkles size={24} /> 
-                        ШІ Шеф-кухар
-                      </div>
-                      <button className="delete-btn" onClick={() => setActiveRecipeTaskId(null)}><X size={24} /></button>
+                <div className="recipe-assistant">
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div className="recipe-header">
+                      <Sparkles size={24} />
+                      ШІ Шеф-кухар
                     </div>
-                    
-                    <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-                      Введи інгредієнти, які маєш вдома, і я підберу рецепти!
-                    </p>
-                    
-                    <input 
-                      type="text" 
-                      className="input-glass" 
-                      placeholder="Наприклад: картопля, яйця, сир..." 
-                      value={ingredients}
-                      onChange={(e) => setIngredients(e.target.value)}
-                    />
-                    
-                    <button 
-                      className="btn-primary" 
-                      onClick={generateRecipe}
-                      disabled={isGenerating || !ingredients.trim()}
-                    >
-                      {isGenerating ? 'Генерую...' : 'Згенерувати рецепт'}
-                    </button>
+                    <button className="delete-btn" onClick={() => setActiveRecipeTaskId(null)}><X size={24} /></button>
+                  </div>
 
-                    {aiResponse && (
-                      <div className="ai-recipe-result">
-                        {aiResponse}
-                      </div>
-                    )}
-                 </div>
+                  <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+                    Введи інгредієнти, які маєш вдома, і я підберу рецепти!
+                  </p>
+
+                  <input
+                    type="text"
+                    className="input-glass"
+                    placeholder="Наприклад: картопля, яйця, сир..."
+                    value={ingredients}
+                    onChange={(e) => setIngredients(e.target.value)}
+                  />
+
+                  <button
+                    className="btn-primary"
+                    onClick={generateRecipe}
+                    disabled={isGenerating || !ingredients.trim()}
+                  >
+                    {isGenerating ? 'Генерую...' : 'Згенерувати рецепт'}
+                  </button>
+
+                  {aiResponse && (
+                    <div className="ai-recipe-result">
+                      {aiResponse}
+                    </div>
+                  )}
+                </div>
               )}
             </div>
           ))
