@@ -287,7 +287,7 @@ function App() {
     <div className="app-container">
       <div className="credit-badge">created by Ihorko</div>
       <header className="header">
-        <h1>Мій Планер</h1>
+        <h1>Планер</h1>
         <p>Керуй своїм днем та планами</p>
       </header>
 
