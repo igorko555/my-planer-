@@ -408,7 +408,7 @@ function App() {
                     <span className="task-text">{task.text}</span>
                   )}
 
-                  <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.2rem' }}>
+                  <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', marginTop: '0.2rem', maxWidth: '100%', overflow: 'hidden' }}>
                     {task.priority && (
                       <span className={`priority-badge priority-${task.priority}`}>
                         {task.priority === 'high' ? '🔥 Високий' : task.priority === 'medium' ? '⚡ Середній' : '☕ Низький'}
