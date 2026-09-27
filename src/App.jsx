@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Plus, Trash2, Sparkles, ChefHat, X, Edit2, Check, Calendar, ChevronDown, ChevronRight, CornerDownRight, Bell, BellRing, Flag, Clock } from 'lucide-react';
+import { Plus, Trash2, Sparkles, ChefHat, X, Edit2, Check, Calendar, ChevronDown, ChevronRight, CornerDownRight, Bell, BellRing, Flag, Clock, Send } from 'lucide-react';
 import './index.css';
 
 function App() {
@@ -280,11 +280,53 @@ function App() {
     }
   };
 
+  // ===== TELEGRAM SHARE =====
+  const shareToTelegram = () => {
+    if (tasks.length === 0) return;
+
+    const priorityEmoji = { high: '🔥', medium: '⚡', low: '☕' };
+    
+    let message = '📋 *Мої завдання — Планер*\n\n';
+    
+    tasks.forEach((task, i) => {
+      const status = task.completed ? '✅' : '⬜';
+      const pEmoji = priorityEmoji[task.priority] || '';
+      message += `${status} ${pEmoji} ${task.text}`;
+      
+      if (task.deadline) {
+        const dl = new Date(task.deadline).toLocaleString('uk-UA', {
+          day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
+        });
+        message += ` 📅 ${dl}`;
+      }
+      
+      message += '\n';
+
+      // Add subtasks
+      if (task.subtasks && task.subtasks.length > 0) {
+        task.subtasks.forEach(st => {
+          const subStatus = st.completed ? '✅' : '⬜';
+          message += `   ↳ ${subStatus} ${st.text}\n`;
+        });
+      }
+    });
+
+    message += `\n📊 Прогрес: ${completedCount}/${tasks.length} (${progressPercentage}%)`;
+
+    const encodedMessage = encodeURIComponent(message);
+    window.open(`https://t.me/share/url?url=${encodeURIComponent(' ')}&text=${encodedMessage}`, '_blank');
+  };
+
   const completedCount = tasks.filter(t => t.completed).length;
   const progressPercentage = tasks.length === 0 ? 0 : Math.round((completedCount / tasks.length) * 100);
 
   return (
     <div className="app-container">
+      {/* Animated background orbs */}
+      <div className="bg-orb bg-orb-1"></div>
+      <div className="bg-orb bg-orb-2"></div>
+      <div className="bg-orb bg-orb-3"></div>
+
       <div className="credit-badge">created by Ihorko</div>
       <header className="header">
         <h1>Планер</h1>
@@ -408,7 +450,7 @@ function App() {
                     <span className="task-text">{task.text}</span>
                   )}
 
-                  <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', marginTop: '0.2rem', maxWidth: '100%', overflow: 'hidden' }}>
+                  <div className="task-badges">
                     {task.priority && (
                       <span className={`priority-badge priority-${task.priority}`}>
                         {task.priority === 'high' ? '🔥 Високий' : task.priority === 'medium' ? '⚡ Середній' : '☕ Низький'}
@@ -435,7 +477,7 @@ function App() {
                       title="Зберегти"
                       style={{ color: '#10b981', borderColor: 'rgba(16, 185, 129, 0.3)' }}
                     >
-                      <Check size={22} />
+                      <Check size={20} />
                     </button>
                   ) : (
                     <>
@@ -444,7 +486,7 @@ function App() {
                         onClick={(e) => startEditing(task, e)}
                         title="Редагувати"
                       >
-                        <Edit2 size={22} />
+                        <Edit2 size={20} />
                       </button>
                       {task.isFoodRelated && (
                         <button
@@ -452,7 +494,7 @@ function App() {
                           onClick={(e) => openRecipeAssistant(task.id, e)}
                           title="Підібрати рецепт"
                         >
-                          <ChefHat size={22} />
+                          <ChefHat size={20} />
                         </button>
                       )}
 
@@ -461,7 +503,7 @@ function App() {
                         onClick={(e) => toggleExpand(task.id, e)}
                         title="Підпункти"
                       >
-                        {expandedTasks.has(task.id) ? <ChevronDown size={22} /> : <ChevronRight size={22} />}
+                        {expandedTasks.has(task.id) ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
                       </button>
 
                       <button
@@ -469,7 +511,7 @@ function App() {
                         onClick={(e) => deleteTask(task.id, e)}
                         title="Видалити"
                       >
-                        <Trash2 size={22} />
+                        <Trash2 size={20} />
                       </button>
                     </>
                   )}
@@ -544,6 +586,16 @@ function App() {
           ))
         )}
       </div>
+
+      {/* Telegram Share Button */}
+      {tasks.length > 0 && (
+        <div className="share-section">
+          <button className="share-btn" onClick={shareToTelegram} type="button">
+            <Send size={20} />
+            Поділитися в Telegram
+          </button>
+        </div>
+      )}
     </div>
   );
 }
